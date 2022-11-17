@@ -87,7 +87,7 @@ begin
   rw [nat.lt_iff_add_one_le, le_iff_lt_or_eq] at hni,
   rcases hni with (hni | rfl),
   { exact hfn i hni },
-  { exact hf },
+  { exact hf }, 
 end
 
 /-

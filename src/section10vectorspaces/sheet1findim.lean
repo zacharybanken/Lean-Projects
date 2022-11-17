@@ -124,7 +124,15 @@ example (hV : finrank k V = 9) (hA : finrank k A = 5) (hB : finrank k B = 5) :
   A ⊓ B ≠ ⊥ :=
 begin
   -- see below for the API (i.e. the theorems) you will need
-  sorry,
+  intro h,
+  have j := (submodule.dim_sup_add_dim_inf_eq A B : finrank k ↥(A ⊔ B) + finrank k ↥(A ⊓ B) = finrank k ↥A + finrank k ↥B),
+  rw h at j, 
+  rw finrank_bot _ at j,
+  rw add_zero at j,
+  rw [hA, hB] at j,
+  have k := (submodule.finrank_le (A ⊔ B) : finrank k ↥(A ⊔ B) ≤ finrank k V),
+  rw [j, hV] at k,
+  linarith,
 end
 
 /-

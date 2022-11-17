@@ -51,7 +51,7 @@ example : set X := ⋃ (i : ι), A i
 example : set.Union A = ⋃ (i : ι), A i :=
 begin
   -- RHS is notation for LHS; in fact they're syntactically equal
-  refl
+  refl,
 end
 
 -- A term `x : X` is in the Union if and only if it's in one of the `Aᵢ`
@@ -79,7 +79,7 @@ example (ι κ : Type) (B : ι → κ → set X) :
   (⋃ (i : ι) (k : κ), B i k) = ⋃ (i : ι), ⋃ (k : κ), B i k :=
 begin
   -- note that they're actually syntactically equal
-  refl
+  refl,
 end
 
 /-
@@ -107,7 +107,15 @@ example (F : ι → set X) (f : X → Y) :
 begin
   -- Try a proof from first principles starting with `ext y`
   -- Also try `library_search`.
-  sorry
+  ext y,
+  split, {
+    intro h,
+    rw set.mem_Union,
+    rw [set.image_Union, set.mem_Union] at h,
+    exact h,
+  }, {
+
+  }
 end
 
 example (G : ι → set Y) (f : X → Y) :
@@ -115,14 +123,14 @@ example (G : ι → set Y) (f : X → Y) :
 begin
   -- If you tried `library_search` last time, try
   -- guessing the name of the theorem this time
-  sorry
+  exact set.preimage_Union,
 end
 
 example (G : ι → set Y) (f : X → Y) :
   f ⁻¹' (⋂ (i : ι), G i) = ⋂ (i : ι), f ⁻¹' (G i) :=
 begin
   -- If you don't want to do it, can you guess the name?
-  sorry
+  exact set.preimage_Inter,
 end
 
 -- What do you think about `set.image_Inter` by the way?
@@ -135,13 +143,23 @@ end
 -- Here's a couple more for you to try
 example (S : set X) : (⋃ i, A i) ⊆ S ↔ (∀ i, A i ⊆ S) :=
 begin
-  sorry
+  exact set.Union_subset_iff,
 end
 
 example (κ : Type) (B : ι → κ → set X) :
   (⋃ (i : ι) (k : κ), B i k) = ⋃ (k : κ) (i : ι), B i k :=
 begin
-  sorry,
+  ext y,
+  split, 
+    repeat {intro h,
+    rw set.mem_Union at *,
+    cases h with i hi,
+    rw set.mem_Union at hi,
+    cases hi with k hk,
+    use k,
+    rw set.mem_Union,
+    use i,
+    assumption,},
 end
 
 -- Feel free to make some up yourselves if you want abstract practice;
@@ -173,7 +191,7 @@ variables (X : Type) (ι : Type) (A : ι → set X) (S : set ι)
 example : set X := ⋃ (i ∈ S), A i
 
 -- here's what the notation expands to
-example : (⋃ (i ∈ S), A i) = ⋃ (i : ι) (h : i ∈ S), A i := rfl 
+example : (⋃ (i ∈ S), A i) = ⋃ (i : ι) (h : i ∈ S), A i := rfl
 
 -- So get this; it's taking a union over all i of a union over all proofs
 -- that `i ∈ S` of Aᵢ. This works! If `i : ι` then if you take the
@@ -220,13 +238,27 @@ example (f : X → Y) :
   f '' (⋃ (i ∈ S), A i) = ⋃ (i ∈ S), f '' (A i) :=
 begin
   -- If you can guess what it's called you don't need to prove it ;-)
-  sorry
+  exact set.image_bUnion,
 end
 
 example (B : ι → set Y) (f : X → Y) :
   f ⁻¹' (⋂ (i ∈ S), B i) = ⋂ (i ∈ S), f ⁻¹' (B i) :=
 begin
-  sorry
+  ext y,
+  split, {
+    intro h,
+    rw set.mem_Inter,
+    intro i,
+    rw set.mem_Inter at *,
+    intro hi,
+    rw set.mem_preimage at *,
+    rw set.mem_Inter at h,
+    specialize h i,
+    rw set.mem_Inter at h,
+    exact h(hi),
+  }, {
+
+  }
 end
 
 end bUnion
@@ -256,7 +288,7 @@ example : set X := ⋃₀ S
 example : set.sUnion S = ⋃₀ S :=
 begin
   -- RHS is notation for LHS; in fact they're syntactically equal
-  refl
+  refl,
 end
 
 -- A term `x : X` is in the sUnion if and only if it's in one of the
@@ -273,7 +305,7 @@ end
 -- In fact sUnion is a special case of bUnion, where the index set is `set X`. 
 example : (⋃₀ S) = ⋃ (s ∈ S), s :=
 begin
-  exact set.sUnion_eq_bUnion
+  exact set.sUnion_eq_bUnion,
 end
 
 /-
@@ -289,7 +321,7 @@ example : set X := ⋂₀ S
 example : set.sInter S = ⋂₀ S :=
 begin
   -- RHS is notation for LHS; in fact they're syntactically equal
-  refl
+  refl,
 end
 
 -- A term `x : X` is in the sInter if and only if it's in all of the
@@ -308,14 +340,14 @@ example (S : set (set X)) (f : X → Y) :
   f '' (⋃₀ S) = ⋃₀ ((set.image f) '' S) :=
 begin
   -- This should be set.image_sUnion but it doesn't seem to be there?
-  sorry
+  simp [set.sUnion_eq_bUnion, set.image_bUnion],
 end
 
 example (S : set (set X)) (U : set X) (hU : U ∈ S) : 
   ⋂₀ S ⊆ U :=
 begin
   -- If you don't want to do it, can you guess the name?
-  sorry
+  exact set.sInter_subset_of_mem hU,
 end
 
 end sUnion

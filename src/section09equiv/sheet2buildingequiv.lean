@@ -53,23 +53,31 @@ example (X : Type) : X ≃ X :=
 
 example (X Y : Type) (e : X ≃ Y) : Y ≃ X :=
 { to_fun := e.inv_fun, -- you could write `λ x, e.inv_fun x` instead
-  inv_fun := sorry, -- this is data -- don't use tactic mode
+  inv_fun := e.to_fun, -- this is data -- don't use tactic mode
   left_inv := begin
-    sorry -- this is a proof so tactic mode is fine
+    intro y,
+    simp,
+      -- e.to_fun : x -> y ; e.inv_fun y -> x
+      -- left_inv (e.to_fun) = e.inv_fun
+      -- this is a proof so tactic mode is fine
   end,
   right_inv := begin
-    sorry -- this is a proof
+    intro x,
+    simp, -- this is a proof
   end }
 
 -- can you build `equiv.trans` yourself?
 example (X Y Z : Type) (eXY : X ≃ Y) (eYZ : Y ≃ Z) : X ≃ Z :=
-{ to_fun := sorry, -- this is data; stay away from tactic mode.
-  inv_fun := sorry, -- ditto
+{ to_fun := λ x, eYZ.to_fun (eXY.to_fun x), -- this is data; stay away from tactic mode. -???
+  inv_fun := λ z, eXY.inv_fun (eYZ.inv_fun z), -- ditto
   left_inv := begin
-    sorry -- this is a proof
+    intro x,
+    simp,
+     -- this is a proof
   end,
   right_inv := begin
-    sorry 
+    intro x,
+    simp, 
   end }
 
 -- here's the library's version
@@ -82,7 +90,12 @@ eXY.trans eYZ
 
 -- See if you can make the following bijection using dot notation
 example (A B C X : Type) (eAX : A ≃ X) (eBX : B ≃ X) : A ≃ B :=
-sorry -- don't use tactic mode, see if you can find a one-liner
+begin
+  exact equiv.trans eAX (equiv.symm eBX),
+end
+
+
+ -- don't use tactic mode, see if you can find a one-liner
 -- using `equiv.symm` and `equiv.trans`
 
 -- We already have `equiv.refl ℚ : ℚ ≃ ℚ`, the identity bijection
@@ -90,12 +103,16 @@ sorry -- don't use tactic mode, see if you can find a one-liner
 
 example : ℚ ≃ ℚ :=
 { to_fun := λ x, 3 * x + 4,
-  inv_fun := λ y, sorry, -- fill in the inverse function
+  inv_fun := λ y, (y-4)/3, -- fill in the inverse function
   left_inv := begin
-    sorry,
+    intro y,
+    simp,
+    linarith,
   end,
   right_inv := begin
-    sorry,
+    intro x,
+    simp,
+    linarith,
   end }
 
 
@@ -120,7 +137,29 @@ def R (X Y : Type) : Prop := ∃ e : X ≃ Y, true
 
 example : equivalence R :=
 begin
-  sorry
+  unfold equivalence,
+  unfold reflexive,
+  unfold symmetric,
+  unfold transitive,
+  split, {
+    intro x,
+    rw R,
+    simp [equiv.symm],
+  }, {
+    split, {
+      intros x y,
+      intro h,
+      rw R at *,
+      cases h,
+      use equiv.symm h_w,
+    }, {
+      intros x y z hxy hyz,
+      rw R at *,
+      cases hxy,
+      cases hyz,
+      use equiv.trans hxy_w hyz_w,
+    }
+  }
 end
 
 -- Remark: the equivalence classes of `R` are called *cardinals*.

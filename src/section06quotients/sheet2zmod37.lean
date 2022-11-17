@@ -48,21 +48,21 @@ attribute [instance] s
 
 example (a : ℤ) : ⟦a⟧ = quotient.mk a :=
 begin
-  refl
+  refl,
 end
 
 -- and `≈` is just notation for `R`
 -- (this is handy to know; let's give it a name so we can rewrite it)
 lemma equiv_def (a b : ℤ) : a ≈ b ↔ R a b :=
 begin
-  refl
+  refl,
 end
 
 -- The theorem that quotient.mk is surjective is called `surjective_quotient_mk`.
 
 example : function.surjective (λ (a : ℤ), ⟦a⟧) :=
 begin
-  exact surjective_quotient_mk ℤ 
+  exact surjective_quotient_mk ℤ ,
   -- `surjective_quotient_mk` is a theorem in the library
   -- maybe you could have guessed its name?
 end
@@ -72,19 +72,19 @@ end
 
 example (a b : ℤ) : ⟦a⟧ = ⟦b⟧ ↔ a ≈ b :=
 begin
-  exact quotient.eq -- so `rw quotient.eq` is often useful
+  exact quotient.eq, -- so `rw quotient.eq` is often useful
 end
 
 -- Both implications also have names
 
 example (a b : ℤ) : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
 begin
-  exact quotient.exact
+  exact quotient.exact,
 end
 
 example (a b : ℤ) : a ≈ b → ⟦a⟧ = ⟦b⟧ :=
 begin
-  exact quotient.sound
+  exact quotient.sound,
 end 
 
 /-
@@ -119,7 +119,13 @@ namespace Zmod
 
 lemma negation_is_well_defined_key_lemma (a b : ℤ) (h : a ≈ b) : ⟦-a⟧ = ⟦-b⟧ :=
 begin
-  sorry,
+  rw equiv_def at h,
+  rw quotient.sound,
+  rw equiv_def,
+  rw R_def at *,
+  cases h with z hz,
+  use -z,
+  linarith,
 end
 
 -- The lemma above is somehow the key ingredient to make those
@@ -145,7 +151,7 @@ Here's what this question boils down to in our case:
 
 example (a : ℤ) : neg ⟦a⟧ = ⟦-a⟧ :=
 begin
-  refl -- true by definition. That is part of the magic of Lean's quotient types.
+  refl, -- true by definition. That is part of the magic of Lean's quotient types.
 end
 
 /-
@@ -165,19 +171,26 @@ the diagram commute (i.e. such that `⟦F(x₁)⟧ = f(⟦x₁⟧)`).
 def neg2 : Zmod37 → Zmod37 := quotient.map (λ a, -a) begin
   -- goal looks terrifying! I don't really understand it myself!
   -- But bravely start with `intro a`, and use `dsimp` to get rid of the `lambda`s
-  sorry
+  intro a,
+  simp,
+  intros b h,
+  rw equiv_def at *,
+  rw R_def at *,
+  cases h with z hz,
+  use (-z),
+  linarith,
 end
 
 -- The diagram commutes by definition
 example (a : ℤ) : neg2 ⟦a⟧ = ⟦-a⟧ :=
 begin
-  refl
+  refl,
 end 
 
 -- The two ways of defining negation are definitionally equal as well
 example : neg = neg2 :=
 begin
-  refl
+  refl,
 end 
 
 -- We have negation; in the next sheet we'll define addition

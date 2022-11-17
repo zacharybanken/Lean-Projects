@@ -28,10 +28,44 @@ variable (S : set X)
 variables (f : X → Y) 
 
 -- If f is continuous and S is compact, then the image f(S) is also compact.
-example (hf : continuous f) (hS : is_compact S) : is_compact (f '' S) :=
+theorem continuous_image_of_compact_compact (hf : continuous f) (hS : is_compact S) : is_compact (f '' S) :=
 begin
   -- Figure out the maths proof first, and then see if you can 
   -- formalise it in Lean.
-  -- `rw is_compact_iff_finite_subcover at hS ⊢,` might be a good first line
-  sorry
+
+  -- since f is continuous, f⁻¹(Uᵢ) open in X. ⋃ f⁻¹ (Uᵢ) is cover of X. Since S is compact, we can cover S
+  --  with a finite union of f⁻¹(Uᵢ). Then there is a finite subcover of Y given by union of Uᵢ  
+
+  rw is_compact_iff_finite_subcover at hS ⊢, -- might be a good first line
+  intros ι U hι hfS,
+
+  have k : (∀ i : ι, is_open (f⁻¹' (U i))),
+  { intro i,
+  specialize hι i,
+  exact continuous_def.mp hf (U i) hι,},
+  
+  have l : (S ⊆ ⋃ (i : ι), f⁻¹'(U i)),
+  {intros x hx,
+  simp [set.mem_bUnion],
+  have j : f(x) ∈ f '' S,
+  exact set.mem_image_of_mem f hx,
+  specialize hfS (j),
+  exact set.mem_Union.mp hfS,},
+
+  finish,
+  
 end
+
+lemma close_subspace_compact ( Y : set X) :
+is_compact (set.univ : set X) ∧ is_closed Y → is_compact Y :=
+begin
+  rintros ⟨h1, h2⟩,
+  rw is_compact_univ_iff at h1,
+  rw is_compact_iff_finite_subcover,
+  intro l,
+  intro f,
+  intro hf,
+  intro hy,
+end
+
+#print continuous_image_of_compact_compact

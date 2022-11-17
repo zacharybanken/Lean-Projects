@@ -39,28 +39,66 @@ namespace myweakgroup
 
 variables {G : Type} [myweakgroup G] (a b c : G)
 
-/-
 
-One way of doing it: try proving 
 
-`mul_left_cancel : a * b = a * c → b = c`
+-- One way of doing it: try proving 
 
-and then
 
-`mul_eq_of_eq_inv_mul : b = a⁻¹ * c → a * b = c`
+-- lemma mul_left_cancel (G : Type) [myweakgroup G] (a b c : G) (h : a * b = a * c) : b = c :=
+-- begin
+--   have j : a⁻¹ * (a * b) = a⁻¹ * (a * c), {
+--     rw h,
+--   },
+--   rw ← mul_assoc at j,
+--   rw ← mul_assoc at j,
+--   rw inv_mul_self at j,
+--   rw one_mul at j,
+--   rw one_mul at j,
+--   exact j,
+-- end
 
-first.
+lemma mul_left_cancel (a b c : G) (h : a * b = a * c) : b = c :=
+begin
+  calc 
+       b = 1 * b         : by rw one_mul
+  ...    = a⁻¹ * a * b   : by rw inv_mul_self
+  ...    = a⁻¹ * (a * b) : by rw mul_assoc
+  ...    = a⁻¹ * (a * c) : by rw h
+  ...    = a⁻¹ * a * c   : by rw mul_assoc
+  ...    = 1 * c         : by rw inv_mul_self
+  ...    = c             : by rw one_mul,
 
--/
+end
+
+-- and then
+
+lemma mul_eq_of_eq_inv_mul (G : Type) [myweakgroup G] (a b c : G) (h : b = a⁻¹ * c) : a * b = c :=
+begin
+  apply mul_left_cancel a⁻¹,
+  rw ← one_mul b at h,
+  rw ← inv_mul_self a at h,
+  rw mul_assoc at h,
+  exact h,
+end
+
+--`mul_eq_of_eq_inv_mul : b = a⁻¹ * c → a * b = c`
+
+-- first.
+
+
 
 lemma mul_one (a : G) : a * 1 = a :=
 begin
-  sorry,
+  apply mul_left_cancel a⁻¹,
+  rw ← mul_assoc,
+  rw inv_mul_self,
+  rw  one_mul,
 end
 
 lemma mul_inv_self (a : G) : a * a⁻¹ = 1 :=
 begin
-  sorry,
+  apply mul_left_cancel a⁻¹,
+  rw [← mul_assoc, inv_mul_self, one_mul, mul_one],
 end
 
 def to_mygroup (G : Type) [myweakgroup G] : mygroup G :=

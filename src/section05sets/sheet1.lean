@@ -56,12 +56,12 @@ check this.
 lemma subset_def : A ⊆ B ↔ ∀ x, x ∈ A → x ∈ B :=
 begin
   -- ↔ is reflexive so `refl` works because LHS is defined to be equal to RHS
-  refl
+  refl,
 end
 
 lemma mem_union_iff : x ∈ A ∪ B ↔ x ∈ A ∨ x ∈ B :=
 begin
-  refl
+  refl,
 end
 
 lemma mem_inter_iff : x ∈ A ∩ B ↔ x ∈ A ∧ x ∈ B :=
@@ -79,40 +79,94 @@ Let's prove some theorems.
 
 example : A ⊆ A :=
 begin
-  sorry,
+  refl,
 end
 
 example : A ⊆ B → B ⊆ C → A ⊆ C :=
 begin
-  sorry,
+  intro h,
+  intro j,
+  rw subset_def at h,
+  rw subset_def at j,
+  rw subset_def,
+  intro x,
+  specialize h x,
+  specialize j x,
+  intro k,
+  apply j,
+  apply h,
+  exact k,
 end
 
 example : A ⊆ A ∪ B :=
 begin
-  sorry,
+  rw subset_def,
+  intro x,
+  intro h,
+  rw mem_union_iff,
+  left,
+  exact h,
 end
 
 example : A ∩ B ⊆ A :=
 begin
-  sorry,
+  rw subset_def,
+  intro x,
+  intro h,
+  rw mem_inter_iff at h,
+  exact h.1,
 end
 
 example : A ⊆ B → A ⊆ C → A ⊆ (B ∩ C) :=
 begin
-  sorry,
+  intro h,
+  intro j,
+  intro x,
+  intro k,
+  specialize j k,
+  specialize h k,
+  split,
+  exact h,
+  exact j,
 end
 
 example : B ⊆ A → C ⊆ A → B ∪ C ⊆ A :=
 begin
-  sorry,
+  intro h,
+  intro j,
+  intro x,
+  intro k,
+  cases k,
+  apply h,
+  exact k,
+  apply j,
+  exact k,
 end
 
 example : A ⊆ B → C ⊆ D → A ∪ C ⊆ B ∪ D :=
 begin
-  sorry,
+  intro h,
+  intro j,
+  intro x,
+  intro k,
+  cases k,
+  specialize h k,
+  left,
+  exact h,
+  specialize j k,
+  right,
+  exact j,
 end
 
 example : A ⊆ B → C ⊆ D → A ∩ C ⊆ B ∩ D :=
 begin
-  sorry,
+  intro h,
+  intro j,
+  intro x,
+  intro k,
+  split,
+  apply h,
+  exact k.1,
+  apply j,
+  exact k.2,
 end

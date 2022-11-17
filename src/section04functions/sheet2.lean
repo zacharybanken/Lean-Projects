@@ -60,17 +60,54 @@ open function
 
 lemma gf_injective : injective (g ∘ f) :=
 begin
-  sorry,
+  rw function.comp,
+  rw function.injective,
+  intro x,
+  intro a,
+  intro h,
+  cases x,
+  cases a,
+  refl,
 end
 
 -- This is a question on the IUM (Imperial introduction to proof course) function problem sheet
 example : ¬ (∀ X Y Z : Type, ∀ (f : X → Y) (g : Y → Z), injective (g ∘ f) → injective g) :=
 begin
-  sorry,
+  intro h,
+  specialize h X Y Z f g,
+  have j : injective g, {
+    exact h(gf_injective),
+  },
+  clear h,
+  unfold injective at j,
+  have k : g Y.b = g Y.c, {
+    refl,
+  }, 
+  have r := j(k),
+  cases r,
+
+  
+
+
 end
 
 -- This is another one
 example : ¬ (∀ X Y Z : Type, ∀ (f : X → Y) (g : Y → Z), surjective (g ∘ f) → surjective f) :=
 begin
-  sorry,
+  intro h,
+  specialize h X Y Z f g,
+  specialize h _, {
+   clear h,
+   rw surjective,
+   intro z,
+   cases z,
+   use X.a,
+   refl,
+  }, {
+   rw surjective at h,
+   specialize h Y.c,
+   cases h with a ha,
+   cases a,
+   cases ha,
+  }
 end

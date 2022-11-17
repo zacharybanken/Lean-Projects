@@ -48,13 +48,21 @@ variables (R : Type) [comm_ring R]
 noncomputable def M (n : ℕ) : submodule R (polynomial R) :=
 { carrier := {f : polynomial R | f.nat_degree ≤ n},
   zero_mem' := begin
-    sorry
+    simp [nat_degree_zero],
   end,
   add_mem' := begin
-    sorry,
-  end,
+    intros a b ha hb,
+    simp * at *,
+    have hab := nat_degree_add_le a b,
+    have hm : max a.nat_degree b.nat_degree ≤ n,
+    exact max_le ha hb,
+    linarith,
+    end,
   smul_mem' := begin
-    sorry
+    intros c x hx,
+    simp * at *,
+    have k:= nat_degree_smul_le c x,
+    linarith,
   end
 }
 
@@ -62,7 +70,7 @@ noncomputable def M (n : ℕ) : submodule R (polynomial R) :=
 
 lemma mem_M_iff (f : polynomial R) (n : ℕ) : f ∈ M R n ↔ f.nat_degree ≤ n :=
 begin
-  sorry,
+  refl,
 end
 
 /-
@@ -86,7 +94,15 @@ of degree ≤ n. The proof is not too bad once you know about
 lemma ker_lcoeff (f : polynomial R) (n : ℕ) (hfn : f ∈ M R (n+1)) (hf : lcoeff R (n+1) f = 0) :
   f ∈ M R n :=
 begin
-  sorry,
+  rw [mem_M_iff, nat_degree_le_iff_coeff_eq_zero] at *,
+  simp * at *,
+  intros N hN,
+  have hN2 : n + 1 ≤ N, { exact nat.succ_le_iff.mpr hN,},
+  rw le_iff_lt_or_eq at hN2,
+  cases hN2,
+  { exact (hfn N) (hN2),},
+  finish,
+
 end
 
 /-
@@ -114,7 +130,10 @@ are known to the type class inference system.
 -- this should be PR'ed to mathlib
 lemma nat_degree_X_pow_le (n : ℕ) : (X^n : polynomial R).nat_degree ≤ n :=
 begin
-  sorry,
+  casesI subsingleton_or_nontrivial R,
+  rw nat_degree_of_subsingleton,
+  exact zero_le n,
+  rw nat_degree_X_pow,
 end
 
 end polynomial

@@ -102,7 +102,7 @@ example
   ∀ n, P n :=
 begin
   -- apply mynat.rec
-  exact mynat.rec h0 hsucc
+  exact mynat.rec h0 hsucc,
 end
 
 -- recursion: how to define f(n) for all n, given f(0) and
@@ -158,7 +158,7 @@ instance : has_add mynat :=
 
 lemma add_zero (n : mynat) : n + 0 = n :=
 begin
-  refl
+  refl,
 end
 
 -- dot notation for succ is quite confusing; let's switch it off
@@ -166,7 +166,7 @@ attribute [pp_nodot] mynat.succ
 
 lemma add_succ (n m : mynat) : n + succ m = succ (n + m) :=
 begin
-  refl
+  refl,
 end
 
 /-
@@ -181,12 +181,13 @@ because it knows about `mynat.rec`.
 lemma zero_add (n : mynat) : 0 + n = n :=
 begin
   induction n with d hd, -- works!
-  { 
+  { refl,
     -- see how we have a mixture of notation now? :-(
     -- see if you can sort out the mess. In the natural number game
     -- I do this behind the scenes.
-    sorry }, -- 
-  { sorry }
+     }, -- 
+  { rw add_succ,
+    rw hd, }
 end
 
 /-
@@ -224,12 +225,12 @@ def is_zero : mynat → yesno
 
 lemma yes_zero_is_zero : is_zero 0 = yes :=
 begin
-  refl
+  refl,
 end
 
 lemma no_succ_isnt_zero (n : mynat) : is_zero (succ n) = no :=
 begin
-  refl
+  refl,
 end
 
 lemma succ_ne_zero (n : mynat) : succ n ≠ 0 :=
@@ -237,7 +238,11 @@ begin
   -- see if you can prove it.
   -- Recall the `apply_fun` tactic which can turn a hypothesis
   -- `x = y` into `f x = f y`
-  sorry
+  intro h,
+  apply_fun is_zero at h,
+  rw no_succ_isnt_zero at h,
+  rw is_zero at h,
+  cases h,
 end
 
 -- Now here's how to prove that `succ` is injective
@@ -249,12 +254,15 @@ def pred : mynat → mynat
 
 lemma pred_succ (n : mynat) : pred (succ n) = n :=
 begin
-  sorry
+  rw pred,
 end
 
 lemma succ_inj (a b : mynat) (hab : succ a = succ b) : a = b :=
 begin
-  sorry,
+  apply_fun pred at hab,
+  rw pred at *,
+  rw pred at *,
+  exact hab,
 end
 
 end mynat

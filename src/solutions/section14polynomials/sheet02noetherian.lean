@@ -41,7 +41,7 @@ as an ideal.
 `exists.some` is the function which takes a proof
 that there exists something with a property, and spits out
 a something. It moves from the `Prop` universe to the `Type` universe
-and is hence noncomputable. The proof that the something satisfies
+and is hence noncomputable. The proof that the something satisfies --???
 the property is `exists.some_spec`.
 
 With that in mind, I present `is_noetherian_ring.gens`, a function

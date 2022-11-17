@@ -64,12 +64,17 @@ See if you can prove all seven using (for the most part) the `rw` tactic.
 
 @[simp] lemma inv_mul_cancel_left : a⁻¹ * (a * b) = b :=
 begin
-  sorry
+  rw ← mul_assoc,
+  rw inv_mul_self,
+  rw one_mul,
 end
 
 @[simp] lemma mul_inv_cancel_left : a * (a⁻¹ * b) = b :=
 begin
-  sorry
+  rw ← mul_assoc,
+  rw mul_inv_self,
+  rw one_mul,
+
 end
 
 lemma left_inv_eq_right_inv {a b c : G} (h1 : b * a = 1) (h2 : a * c = 1) : 
@@ -77,27 +82,89 @@ lemma left_inv_eq_right_inv {a b c : G} (h1 : b * a = 1) (h2 : a * c = 1) :
 begin
   -- hint for this one : establish the auxiliary fact
   -- that `b * (a * c) = (b * a) * c` with the `have` tactic.
-  sorry,
+  have j : b * (a * c) = (b * a) * c, {
+    rw mul_assoc,
+  }, {
+    rw h2 at j,
+    rw h1 at j,
+    rw one_mul at j,
+    rw mul_one at j,
+    exact j,
+  }
 end
 
 lemma mul_eq_one_iff_eq_inv : a * b = 1 ↔ a⁻¹ = b :=
 begin
-  sorry,
+  split, {
+    intro h,
+    have j : a⁻¹ * a * b = a⁻¹, {
+      rw mul_assoc,
+      rw h,
+      rw mul_one,
+    }, {
+      rw inv_mul_self at j,
+      rw one_mul at j,
+      symmetry,
+      exact j,
+    },
+  }, {
+    intro h,
+    have j : a * a⁻¹ *  b = a⁻¹, {
+      rw mul_inv_self,
+      rw one_mul,
+      symmetry,
+      exact h,
+    }, {
+      rw mul_inv_self at j,
+      rw one_mul at j,
+      rw j,
+      rw mul_inv_self,
+    }
+  }
 end
 
 @[simp] lemma one_inv : (1 : G)⁻¹ = 1 :=
 begin
-  sorry,
+  have j : 1 * 1 = 1, {
+    ring,
+  }, {
+    have k :  (1 : G)⁻¹ * 1 = 1, {
+        rw inv_mul_self,
+    }, 
+    rw mul_one at k,
+    exact k,
+  }
 end
 
 @[simp] lemma inv_inv : (a⁻¹)⁻¹ = a :=
 begin
-  sorry,
+  have j : (a⁻¹)⁻¹ * a⁻¹ = a * (a⁻¹), {
+    rw inv_mul_self,
+    rw mul_inv_self,
+  },
+  have k : (a⁻¹)⁻¹ * a⁻¹ * a = a * (a⁻¹) * a, {
+    rw j,
+  },
+  rw mul_assoc at k,
+  rw mul_assoc at k,
+  repeat {rw inv_mul_self at k},
+  repeat {rw mul_one at k},
+  exact k,
 end
 
 @[simp] lemma mul_inv_rev : (a * b)⁻¹ = b⁻¹ * a⁻¹ := 
 begin
-  sorry,
+  have j : (a * b)⁻¹ * (a * b) = 1, {
+    rw inv_mul_self (a * b),
+  }, 
+  have k : (a * b)⁻¹ * (a * b) = b⁻¹ * a⁻¹ * (a * b), {
+    rw j,
+    rw mul_assoc,
+    rw ← mul_assoc a⁻¹ a b,
+    rw inv_mul_self,
+    rw one_mul,
+    rw inv_mul_self,
+  }
 end
 
 /-
@@ -118,7 +185,35 @@ example (G : Type) [mygroup G] (a b : G) :
 example (G : Type) [mygroup G] (h : ∀ g : G, g * g = 1) :
   ∀ g h : G, g * h = h * g :=
 begin
-  sorry
+  intro g,
+  intro k,
+  
+  have h2 : ∀ g : G, g * g = 1 := by exact h,
+  have h4 : ∀ g : G, g * g = 1 := by exact h,
+  have h5 : ∀ g : G, g * g = 1 := by exact h,
+  have h6 : ∀ g : G, g * g = 1 := by exact h,
+
+  specialize h (g * k),
+  specialize h6 (g * k),
+  specialize h2 (k * g),
+  specialize h4 g,
+  specialize h5 k,
+
+  rw ← h2 at h,
+  have h3 : g * k * (g * k) * (g * k) = k * g * (k * g) * (g * k), {
+    rw h,
+  },
+  rw mul_assoc (k * g)  (k * g)  (g * k) at h3,
+  rw mul_assoc k  g  (g * k) at h3,
+  rw ← mul_assoc g g k at h3,
+  rw h4 at h3,
+  rw one_mul at h3,
+  rw h5 at h3,
+  rw mul_one at h3,
+  rw h6 at h3,
+  rw one_mul at h3,
+  exact h3,
+  
 end
 
 end mygroup

@@ -39,11 +39,11 @@ Now here's some standard facts from topology. I'll tell you the names
 of the proofs, you can guess what they're proofs of
 (and then check with `#check`, which tells you the type of a term, so
 if you give it a theorem proof it will tell you the theorem statement). 
-
-* is_open_univ
-* is_open_Union, is_open_bUnion, is_open_sUnion (note the capital U)
-* is_open.inter (note the small i) (and the dot to enable dot notation)
-
+-/
+#check is_open_univ
+#check is_open_Union -- is_open_bUnion, is_open_sUnion --(note the capital U)
+#check is_open.inter --(note the small i) (and the dot to enable dot notation)
+/-
 -/
 
 /-
@@ -92,12 +92,20 @@ rewriting set.mem_Union_iff or set.mem_sUnion_iff.
 
 lemma interior'_open : is_open (interior' S) := 
 begin
-  sorry
+  apply is_open_bUnion,
+  intros i h,
+  finish,
 end
 
 lemma interior'_subset : interior' S ⊆ S :=
 begin
-  sorry,
+  rw set.subset_def,
+  intros x hx,
+  rw mem_interior' at hx,
+  cases hx with u h,
+  cases h with hU h,
+  cases h with hUS x,
+  exact hUS(x),
 end
 
 -- Lean can work out S from hUS so let's make S a {} input for this one
@@ -106,7 +114,10 @@ variable {S}
 
 lemma subset_interior' {U : set X} (hU : is_open U) (hUS : U ⊆ S) : U ⊆ interior' S :=
 begin
-  sorry,
+  intros x hx,
+  simp [mem_interior' S],
+  use U,
+  exact ⟨hU, hUS, hx⟩,
 end
 
 
@@ -114,28 +125,115 @@ end
 -- when it sees hST
 lemma interior'_mono {S T : set X} (hST : S ⊆ T) : interior' S ⊆ interior' T :=
 begin
-  sorry,
+  have j := interior'_subset(S),
+  intros x hx,
+  simp [mem_interior'],
+  use interior' S,
+  have hi : interior' S ⊆ T,
+  intros y hy, 
+  exact hST(j(hy)),
+  exact ⟨interior'_open S, hi, hx⟩,
+
 end
 
 -- instead of starting this with `ext`, you could `apply set.subset.antisymm`,
 -- which is the statement that if S ⊆ T and T ⊆ S then S = T.
 lemma interior'_interior' : interior' (interior' S) = interior' S :=
 begin
-  sorry,
+  apply set.subset.antisymm, {
+    exact interior'_subset (interior' S),
+  }, {
+    intros x hx,
+    rw mem_interior' at *,
+    cases hx with U hx,
+    cases hx with hU hx,
+    cases hx with hUS hx,
+    use U,
+    split, exact hU,
+    use subset_interior' hU hUS,
+    exact hx,
+
+  }
 end
 
 -- Some examples of interiors
 lemma interior'_empty : interior' (∅ : set X) = ∅ :=
 begin
-  sorry,
+  apply set.subset.antisymm, {
+    intros x hx,
+    rw set.mem_empty_eq,
+    rw mem_interior' at hx,
+    cases hx with m hm, cases hm with w hw, cases hw with y hy,
+    specialize y(hy),
+    cases y,
+  }, {
+    intros x hx,
+    cases hx,
+  }
 end
 
 lemma interior'_univ : interior' (set.univ : set X) = set.univ :=
 begin
-  sorry,
+  ext,
+  split, {
+    intro h,
+    triv,
+  }, {
+    intro h,
+    rw mem_interior',
+    use set.univ,
+    split, {
+      exact is_open_univ,
+    }, {
+      finish,
+    }
+  }
 end
 
 lemma interior'_inter (S T : set X) : interior' (S ∩ T) = interior' S ∩ interior' T :=
 begin
-  sorry,
+  ext,
+  split, {
+    intro hx,
+    rw mem_interior' at hx,
+    cases hx with U hUS,
+    cases hUS with hU hUS,
+    cases hUS with hU2 hx,
+    split, {
+      rw mem_interior',
+      finish,
+    }, {
+      rw mem_interior',
+      finish,
+    }
+  }, {
+    intro hx,
+    rw mem_interior' at *,
+    cases hx with hs ht,
+    rw mem_interior' at *,
+    cases hs with U hUS,
+    cases ht with V hVS,
+    cases hUS with hU hU2,
+    cases hVS with hV hV2,
+    cases hU2 with hut hxu,
+    cases hV2 with hvt hxv,
+    use U ∩ V,
+    split, {
+      exact is_open.inter hU hV,
+    }, {
+      norm_num,
+      split, {
+        split, {
+          intro y,
+          intro hy,
+          exact hut (hy.1),
+        }, {
+          intros y hy,
+          exact hvt (hy.2),
+        }
+      }, {
+        finish,
+      }
+    }
+  }
 end

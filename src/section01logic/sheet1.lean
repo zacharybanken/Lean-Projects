@@ -64,8 +64,9 @@ begin
   intro h,
   -- now `h` is the hypothesis that `P` is true.
   -- Our goal is now the same as a hypothesis so we can use `exact`
-  exact hQ,
+  --exact hQ,
   -- note `exact Q` doesn't work: `exact` takes the *term*, not the type.
+  exact hQ
 end
 
 -- Assume `P → Q` and `P` is true. Deduce `Q`.
@@ -89,7 +90,8 @@ using `intro`, `exact` and `apply`.
 /-- Every proposition implies itself. -/
 example : P → P :=
 begin
-  sorry
+  intro h,
+  exact h,
 end
 
 /-
@@ -109,28 +111,39 @@ So the next level is asking you prove that `P → (Q → P)`.
 -/
 example : P → Q → P :=
 begin
-  sorry
+  intro h,
+  intro h_2,
+  exact h,
 end
 
 /-- If we know `P`, and we also know `P → Q`, we can deduce `Q`. 
 This is called "Modus Ponens" by logicians. -/
 example : P → (P → Q) → Q :=
 begin
-  sorry
+  intro h_1,
+  intro h_2,
+  apply h_2,
+  exact h_1,
 end
 
 /-- `→` is transitive. That is, if `P → Q` and `Q → R` are true, then
   so is `P → R`. -/
 example : (P → Q) → (Q → R) → (P → R) :=
 begin
-  sorry,
+  intro h_0,
+  intro h_1,
+  intro h_2,
+  exact h_1(h_0(h_2)),
 end
 
 -- If `h : P → Q → R` with goal `⊢ R` and you `apply h`, you'll get
 -- two goals! Note that tactics operate on only the first goal.
 example : (P → Q → R) → (P → Q) → (P → R) :=
 begin
-  sorry
+  intros h_0 h_1 h_2,
+  apply h_0,
+  exact h_2,
+  exact h_1(h_2),
 end
 
 /- 
@@ -146,27 +159,43 @@ variables (S T : Prop)
 
 example : (P → R) → (S → Q) → (R → T) → (Q → R) → S → T :=
 begin
-  sorry
+  intros h_0 h_1 h_2 h_3 h_4,
+  exact h_2(h_3(h_1(h_4))),
 end
 
 example : (P → Q) → ((P → Q) → P) → Q :=
 begin
-  sorry
+  intros h_0 h_1,
+  apply h_0,
+  apply h_1,
+  exact h_0,
 end
 
 example : ((P → Q) → R) → ((Q → R) → P) → ((R → P) → Q) → P :=
 begin
-  sorry
+  intros h_0 h_1 h_2,
+  apply h_1,
+  intro h_3,
+  apply h_0,
+  intro h_4,
+  exact h_3,
 end
 
 example : ((Q → P) → P) → (Q → R) → (R → P) → P :=
 begin
-  sorry
+  intros h_0 h_1 h_2,
+  apply h_0,
+  intro h_3,
+  exact h_2(h_1(h_3)),
 end
 
 example : (((P → Q) → Q) → Q) → (P → Q) :=
 begin
-  sorry
+  intros h_0 h_1,
+  apply h_0,
+  intro h_2,
+  apply h_2,
+  exact h_1,
 end
 
 example :
@@ -174,5 +203,13 @@ example :
   ((((P → P) → Q) → (P → P → Q)) → R) →
   (((P → P → Q) → ((P → P) → Q)) → R) → R :=
 begin
-  sorry
+  intros h_0 h_1 h_2,
+  apply h_1,
+  intros h_3 h_4,
+  intro h_5,
+  apply h_3,
+  intro h_6,
+  exact h_6,
+
+
 end

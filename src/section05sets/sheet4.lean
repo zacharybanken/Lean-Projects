@@ -35,7 +35,7 @@ Let's check:
 
 lemma mem_def (X : Type) (P : X → Prop) (a : X) : a ∈ { x : X | P x } ↔ P a :=
 begin
-  refl
+  refl,
 end
 
 /-
@@ -53,7 +53,8 @@ def is_even (n : ℕ) : Prop := ∃ t, n = 2 * t
 
 example : 74 ∈ {n : ℕ | is_even n} :=
 begin
-  sorry,
+  use 37,
+  refl,
 end
 
 -- Let's develop a theory of even real numbers
@@ -61,13 +62,22 @@ def real.is_even (r : ℝ) := ∃ t : ℝ, r = 2 * t
 
 -- Turns out it's not interesting
 example : ∀ x , x ∈ {r : ℝ | real.is_even r} :=
-begin
-  sorry,
+begin 
+  intro x,
+  use x/2,
+  linarith,
 end
 
 -- likewise, the theory of positive negative real numbers is not interesting
-example : ∀ x, x ∉ {r : ℝ | 0 < r ∧ r < 0} :=
+lemma test : ∀ x, x ∉ {r : ℝ | 0 < r ∧ r < 0} :=
 begin
-  sorry,
+  intro x,
+  intro h,
+  cases h,
+  linarith,
 end
+
+#print test
+
+#print has_lt
 

@@ -66,7 +66,34 @@ end
 example (X Y : Type) (f : X → Y) :
   function.bijective f ↔ ∃ g : Y → X, (∀ y, f(g y)=y) ∧ (∀ x, g(f x) = x) :=
 begin
-  sorry,
+  split, {
+    intro hf,
+    cases hf with hi hs,
+    choose g hg using hs,
+    use g,
+    split, {
+      assumption,
+    }, {
+      intro x,
+      apply_fun f,
+      rwa hg (f(x)),
+    }
+  }, {
+    intro hf,
+    split, {
+      unfold function.injective,
+      intros a b hab,
+      cases hf with g hg,
+      apply_fun g at hab,
+      finish,
+    }, {
+      unfold function.surjective,
+      intro b,
+      cases hf with g hg,
+      use g(b),
+      finish,
+    }
+  }
 end
 
 /-

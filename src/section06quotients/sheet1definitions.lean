@@ -110,22 +110,40 @@ end
 lemma R_reflexive : reflexive R :=
 begin
   unfold reflexive, -- if you like
-  sorry
+  intro x,
+  rw R_def,
+  use 0,
+  simp,
+  
 end
 
 lemma R_symmetric : symmetric R :=
 begin
-  sorry
+  unfold symmetric,
+  intros x y,
+  intro h,
+  rw R_def at *,
+  cases h with z hz,
+  use (-z),
+  linarith,
 end
 
 lemma R_transitive : transitive R :=
 begin
-  sorry
+  unfold transitive,
+  intros x y z,
+  intros h j,
+  rw R_def at *,
+  cases h with q hq,
+  cases j with w hw,
+  use (w + q),
+  linarith,
 end
 
 lemma R_equivalence : equivalence R :=
 begin
-  sorry,
+  unfold equivalence,
+  exact ⟨R_reflexive, R_symmetric, R_transitive⟩,
 end
 
 -- The "setoid" -- everything we've defined and proved so far,

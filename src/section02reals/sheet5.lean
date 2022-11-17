@@ -12,7 +12,25 @@ import solutions.section02reals.sheet3 -- import the definition of `tendsto` fro
 theorem tendsto_neg {a : ℕ → ℝ} {t : ℝ} (ha : tendsto a t) :
   tendsto (λ n, - a n) (-t) :=
 begin
-  sorry,
+  rw tendsto_def,
+  rw tendsto_def at ha,
+  intro ε,
+  intro hε,
+  simp,
+  specialize ha ε, 
+
+  have j := ha(hε), -- ???
+  cases j with b hb,
+  use b,
+  intro n,
+  specialize hb n,
+  intro hn,
+
+  have k := hb(hn),
+  rw abs_sub_comm at k,
+  exact k,
+
+
 end
 
 /-

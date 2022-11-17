@@ -29,7 +29,7 @@ instance : has_neg Zmod37 :=
 -- the brackets
 @[simp] lemma neg_def (a : ℤ) : -⟦a⟧ = ⟦-a⟧ :=
 begin
-  refl
+  refl,
 end
 
 -- Let's also define notation for zero
@@ -38,7 +38,7 @@ instance : has_zero Zmod37 :=
 
 @[simp] lemma zero_def : (0 : Zmod37) = ⟦0⟧ :=
 begin
-  refl
+  refl,
 end
 
 /-
@@ -72,7 +72,14 @@ as `Zmod37 → Zmod37 → Zmod37` (indeed, that's what "right associative" means
 def add : Zmod37 → Zmod37 → Zmod37 :=
 quotient.map₂ (λ a b, a + b) begin
   -- keep intro-ing, and dsimp the lambdas away
-  sorry
+  intros h j k l z i,
+  dsimp,
+  rw equiv_def at *,
+  rw R_def at *,
+  cases k with z₁ hz₁,
+  cases i with z₂ hz₂,
+  use (z₁ + z₂),
+  linarith,
 end
 
 instance : has_add Zmod37 :=
@@ -80,7 +87,7 @@ instance : has_add Zmod37 :=
 
 @[simp] lemma add_def (a b : ℤ) : ⟦a⟧ + ⟦b⟧ = ⟦a + b⟧ :=
 begin
-  refl
+  refl,
 end
 
 /-
@@ -119,7 +126,12 @@ end
 lemma add_comm (y z : Zmod37) : y + z = z + y :=
 begin
   apply quotient.induction_on₂ y z, clear y z,
-  sorry
+  intros a b,
+  simp,
+  rw [equiv_def, R_def],
+  use 0,
+  linarith,
+  
 end
 
 -- See if you can prove the remaining axioms for an additive abelian group yourself.
@@ -129,14 +141,24 @@ instance add_comm_group : add_comm_group Zmod37 :=
   zero := 0,
   neg := has_neg.neg,
   add_assoc := begin
-    sorry
+    intros a b c,
+    apply quotient.induction_on₃ a b c,
+    simp,
+    intros a b c,
+    simp [add_assoc],
   end,
   zero_add := begin
-    sorry
+    intro a,
+    apply quotient.induction_on a,
+    intro a,
+    simp,
   end,
   add_zero := add_zero,
   add_left_neg := begin
-    sorry
+    intro a,
+    apply quotient.induction_on a,
+    intro a,
+    simp,
   end,
   add_comm := add_comm }
 
@@ -149,13 +171,40 @@ instance : has_one Zmod37 :=
 
 @[simp] lemma one_def : (1 : Zmod37) = ⟦1⟧ :=
 begin
-  refl
+  refl,
 end
 
 def mul : Zmod37 → Zmod37 → Zmod37 :=
 quotient.map₂ (λ x y, x * y) begin
-  -- tricky!
-  sorry,
+
+
+
+  intros x y,
+  intro hxy,
+  intros _ _,
+  intro hab,
+  simp,
+  cases hab with w hw,
+  cases hxy with z hz,
+  -- a - b = 37 w
+  -- x - y = 37 z
+  -- ax - ay = 37 a z
+  -- ya - yb = 37 y w
+  -- ax - yb -ay + ay = 37(az + yw)
+  --ax - yb = 37*(az + yw)
+  rw equiv_def,
+  rw R,
+  use (a*z + y*w),
+  have j : a*x - a*y = 37 * a * z,
+  {rw ← mul_sub, rw hz, linarith,},
+  have k : y * a - y * b = 37 * y * w,
+  {rw ← mul_sub, rw hw, linarith,},
+  have jk : (a*x - a*y) + (y*a - y*b) = 37 * ( a * z + y * w),
+  {simp [j, k], 
+    linarith,
+  },
+  linarith,
+
 end
 
 instance : has_mul Zmod37 :=
@@ -171,23 +220,41 @@ instance : comm_ring Zmod37 :=
   mul := (*),
   add := (+),
   mul_assoc := begin
-    sorry
+    intros a b c,
+    apply quotient.induction_on₃ a b c,
+    intros a b c,
+    simp [mul_assoc],
   end,
   one := 1,
   one_mul := begin
-    sorry
+    intro a,
+    apply quotient.induction_on a,
+    intro a,
+    simp,
   end,
   mul_one := begin
-    sorry
+    intro a,
+    apply quotient.induction_on a,
+    intro a,
+    simp,
   end,
   left_distrib := begin
-    sorry,
+    intros a b c,
+    apply quotient.induction_on₃ a b c,
+    intros a b c,
+    simp [mul_add],
   end,
   right_distrib := begin
-    sorry,
+    intros a b c,
+    apply quotient.induction_on₃ a b c,
+    intros a b c,
+    simp [add_mul],
   end,
   mul_comm := begin
-    sorry,
+    intros a b,
+    apply quotient.induction_on₂ a b,
+    intros a b,
+    simp [mul_comm],
 end,
   -- the rest of the ring axioms are the axioms for an additive abelian group,
   -- and we did those already.

@@ -56,16 +56,20 @@ e.apply_symm_apply y -- begin exact end all cancel out; I also use dot notation
 -- equivalences are injective
 example : function.injective (e : X → Y) :=
 begin
-  sorry,
+  exact equiv.injective e,
 end
 
 -- this is `equiv.surjective` but can you prove it from first principles?
 example : function.surjective (e : X → Y) :=
 begin
-  sorry,
+  exact equiv.surjective e,
 end
 
+
+ 
 /-
+
+
 
 
 Here's a cute challenge. Say `G` and `H` are groups,
@@ -78,6 +82,12 @@ example (G H : Type) [group G] [group H] (e : G ≃ H)
   (he : ∀ a b : G, e (a * b) = e a * e b) :
   ∀ x y : H, e.symm (x * y) = e.symm x * e.symm y :=
 begin
-  sorry,
+  intros x y,
+  have hs := he (e.symm x) (e.symm y),
+  simp at hs,
+  apply_fun e,
+  simp,
+  rw hs,
+
 end
 

@@ -50,7 +50,7 @@ variables (X Y Z : Type)
 theorem injective_def (f : X → Y) : 
   injective f ↔ ∀ (a b : X), f a = f b → a = b :=
 begin
-  refl -- this proof works, because `injective f` 
+  refl, -- this proof works, because `injective f` 
        -- means ∀ a b, f a = f b → a = b *by definition*
        -- so the proof is "it's reflexivity of `↔`"
 end
@@ -59,14 +59,14 @@ end
 theorem surjective_def (f : X → Y) : 
   surjective f ↔ ∀ y : Y, ∃ x : X, f x = y :=
 begin
-  refl
+  refl,
 end
 
 -- similarly the *definition* of `id x` is `x`
 theorem id_eval (x : X) :
   id x = x :=
 begin
-  refl
+  refl,
 end
 
 -- Function composition is `∘` in Lean (find out how to type it by putting your cursor on it). 
@@ -74,7 +74,7 @@ end
 theorem comp_eval (f : X → Y) (g : Y → Z) (x : X) :
   (g ∘ f) x = g (f x) :=
 begin
-  refl
+  refl,
 end
 
 -- Why did we just prove all those theorems with a proof
@@ -86,36 +86,83 @@ begin
   -- you can start with `rw injective_def` if you like,
   -- and later you can `rw id_eval`, although remember that `rw` doesn't
   -- work under binders like `∀`, so use `intro` first.
-  sorry
+  rw injective_def,
+  intros a b,
+  rw [id_eval, id_eval],
+  intro h,
+  exact h,
+
 end
 
 example : surjective (id : X → X) :=
 begin
-  sorry
+  rw surjective_def,
+  intro y,
+  use y,
+  rw id_eval,
 end
 
 example (f : X → Y) (g : Y → Z) (hf : injective f) (hg : injective g) :
   injective (g ∘ f) :=
 begin
-  sorry
+  rw injective_def at hf,
+  rw injective_def at hg,
+  rw injective_def,
+  intros a b,
+  repeat {rw comp_eval},
+  intro h,
+  specialize hg (f a) (f b),
+  have j := hg(h),
+  specialize hf a b,
+  have k := hf(j),
+  exact k,
 end
 
 example (f : X → Y) (g : Y → Z) (hf : surjective f) (hg : surjective g) :
   surjective (g ∘ f) :=
 begin
-  sorry
+  rw surjective_def at hf, 
+  rw surjective_def at hg,
+  rw surjective_def,
+  intro z,
+  specialize hg z,
+  cases hg with y hy,
+  specialize hf y,
+  cases hf with x hx,
+  rw ← hx at hy,
+  use x,
+  rw comp_eval,
+  exact hy,
+  
 end
 
 -- This is a question on the IUM (Imperial introduction to proof course) function problem sheet
 example (f : X → Y) (g : Y → Z) : 
   injective (g ∘ f) → injective f :=
 begin
-  sorry
+  intro h,
+  rw injective_def at h,
+  rw injective_def,
+  intros a b,
+  intro j,
+  specialize h a b,
+  repeat {rw comp_eval at h},
+  rw j at h,
+  apply h,
+  refl,
 end
 
 -- This is another one
 example (f : X → Y) (g : Y → Z) : 
   surjective (g ∘ f) → surjective g :=
 begin
-  sorry
+  intro h,
+  rw surjective_def at h,
+  rw surjective_def,
+  intro z,
+  specialize h z,
+  cases h with x hx,
+  rw comp_eval at hx,
+  use f x,
+  exact hx,
 end
