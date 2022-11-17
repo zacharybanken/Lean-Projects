@@ -24,6 +24,9 @@ variables (X Y : Type) [topological_space X] [topological_space Y]
 -- let S be a subset of X
 variable (S : set X)
 
+--comment
+
+
 -- Let `f : X → Y` be a function
 variables (f : X → Y) 
 
